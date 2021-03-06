@@ -5,6 +5,7 @@ import { NgModule, Component } from '@angular/core';
 import {MatPaginatorModule} from '@angular/material/paginator';
 import { MatSliderModule } from '@angular/material/slider';
 import { MatTabsModule } from '@angular/material/tabs';
+import { MatSortModule } from '@angular/material/sort';
 import { ReactiveFormsModule } from '@angular/forms';
 import {MatToolbarModule} from '@angular/material/toolbar';
 import {MatInputModule} from '@angular/material/input';
@@ -38,14 +39,16 @@ import { AddsuppliersComponent } from './addsuppliers/addsuppliers.component';
     DialogboxComponent,
     SuppliersComponent,
     AddcustomersComponent,
-    AddsuppliersComponent, 
-    
+    AddsuppliersComponent,
+
   ],
   imports: [
+
     BrowserModule,
     AppRoutingModule,
     BrowserAnimationsModule,
     MatSliderModule,
+    MatSortModule,
     MatCheckboxModule,
     MatButtonModule,
     MatTabsModule,
@@ -61,17 +64,6 @@ import { AddsuppliersComponent } from './addsuppliers/addsuppliers.component';
     MatToolbarModule,
     MatIconModule,
     MatPaginatorModule
-    // RouterModule.forRoot([
-
-    //   //{path : '', component : HomeComponent},
-    //   {path : 'customers', component : CustomersComponent },
-    //   {path: 'orders', component: OrdersComponent}
-      
-      
-
-    // ])
- 
-
   ],
   providers: [],
   bootstrap: [AppComponent],

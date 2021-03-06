@@ -1,7 +1,13 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild, AfterViewInit } from '@angular/core';
 import {MatDialog, MatDialogConfig, MatDialogRef, } from '@angular/material/dialog';
+import {MatTableDataSource} from '@angular/material/table';
+import {MatPaginator} from '@angular/material/paginator';
 import { Router } from '@angular/router';
 import {AddcustomersComponent} from '../addcustomers/addcustomers.component';
+import { HttpClient } from '@angular/common/http';
+import {merge, Observable, of as observableOf} from 'rxjs';
+import {catchError, map, startWith, switchMap, take} from 'rxjs/operators';
+import { MatSort } from '@angular/material/sort';
 
 @Component({
   selector: 'app-customers',
@@ -9,10 +15,55 @@ import {AddcustomersComponent} from '../addcustomers/addcustomers.component';
   styleUrls: ['./customers.component.css']
 })
 export class CustomersComponent implements OnInit {
-  displayedColumns: string[] = ['position', 'name', 'weight', 'symbol'];
-  dataSource = ELEMENT_DATA;
 
-  constructor(private router: Router, private dialog: MatDialog) { }
+  displayedColumns: string[] = ['id', 'name', 'email', 'phone'];
+  dataSource = new MatTableDataSource<Customer>();
+
+
+  // @ViewChild(MatPaginator) paginator: MatPaginator;
+
+  constructor(private router: Router, private dialog: MatDialog, private http: HttpClient) {
+  }
+
+  getRepoIssues(offset: number, limit: number) {
+
+    const requestUrl =
+        `http://localhost:8080/getcustomers?limit=${limit}&offset=${offset}`;
+
+    return this.http.get<Customer[]>(requestUrl);
+  }
+
+  data: Customer[] = [];
+
+  resultsLength = 0;
+  isLoadingResults = true;
+  isRateLimitReached = false;
+
+  @ViewChild(MatPaginator, { static: true })
+  paginator!: MatPaginator;
+
+  @ViewChild(MatSort, { static: true })
+  sort!: MatSort;
+
+  fetchData() {
+    console.log("next page", this.paginator.pageIndex, this.paginator.pageSize);
+    // this.paginator.pageIndex = 2;
+    this.getRepoIssues(this.paginator.pageSize*(this.paginator.pageIndex), this.paginator.pageSize).subscribe((data) => {
+      this.dataSource.data = data;
+    });
+  }
+
+  ngOnInit() {
+    this.paginator.pageSize = 5;
+    this.paginator.length = 100;
+    this.getRepoIssues(0, 5).pipe(take(1)).subscribe((data) => {
+      this.dataSource.data = data;
+    });
+
+      // this.dataSource.paginator = this.paginator;
+      // this.dataSource.sort = this.sort;
+
+  }
 
   openDialog() {
     const dialogConfig = new MatDialogConfig();
@@ -26,34 +77,16 @@ export class CustomersComponent implements OnInit {
     this.dialog.open(AddcustomersComponent, dialogConfig);
   }
 
-  
-  ngOnInit(): void {
-    
-  }
-  
 }
 
-export interface PeriodicElement {
-  name: string;
-  position: number;
-  weight: number;
-  symbol: string;
+
+export interface Customer {
+
+  customerId: number,
+  customerName: String,
+  customerEmail: String,
+  customerPhone: String,
+  customerAddress: String,
+  customerPincode: String,
+
 }
-
-const ELEMENT_DATA: PeriodicElement[] = [
-  {position: 1, name: 'Hydrogen', weight: 1.0079, symbol: 'H'},
-  {position: 2, name: 'Helium', weight: 4.0026, symbol: 'He'},
-  {position: 3, name: 'Lithium', weight: 6.941, symbol: 'Li'},
-  {position: 4, name: 'Beryllium', weight: 9.0122, symbol: 'Be'},
-  {position: 5, name: 'Boron', weight: 10.811, symbol: 'B'},
-  {position: 6, name: 'Carbon', weight: 12.0107, symbol: 'C'},
-  {position: 7, name: 'Nitrogen', weight: 14.0067, symbol: 'N'},
-  {position: 8, name: 'Oxygen', weight: 15.9994, symbol: 'O'},
-  {position: 9, name: 'Fluorine', weight: 18.9984, symbol: 'F'},
-  {position: 10, name: 'Neon', weight: 20.1797, symbol: 'Ne'},
-  {position: 11, name: 'Oxygen', weight: 15.9994, symbol: 'O'},
-  {position: 12, name: 'Fluorine', weight: 18.9984, symbol: 'F'},
-  {position: 13, name: 'Neon', weight: 20.1797, symbol: 'Ne'},
-];
-
-
